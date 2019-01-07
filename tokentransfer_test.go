@@ -34,7 +34,6 @@ func TestClient(t *testing.T) {
 		log15.LvlFilterHandler(log15.LvlInfo, log15.Must.FileHandler(path.Join(current.HomeDir, "log/transfers.log"), log15.JsonFormat())),
 	)
 	client, err := ethclient.Dial("http://192.168.31.49:8545")
-	//client, err := ethclient.Dial("http://148.70.13.221:8545")
 	if err != nil {
 		t.Fatal(err)
 	}
