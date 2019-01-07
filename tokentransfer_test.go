@@ -3,12 +3,13 @@ package tokenbalance
 import (
 	"context"
 	"fmt"
-
 	"math/big"
+	"os/user"
+	"path"
 	"strings"
 	"testing"
 
-	ethereum "github.com/ethereum/go-ethereum"
+	"github.com/ethereum/go-ethereum"
 	"github.com/ethereum/go-ethereum/accounts/abi"
 	"github.com/ethereum/go-ethereum/common"
 	"github.com/ethereum/go-ethereum/crypto"
@@ -24,11 +25,16 @@ type LogTransfer struct {
 }
 
 func TestClient(t *testing.T) {
+	current, err := user.Current()
+	if err != nil {
+		panic(err)
+	}
+
 	log15.Root().SetHandler(
-		log15.LvlFilterHandler(log15.LvlInfo, log15.Must.FileHandler("/Users/jie/log/transfers.log", log15.JsonFormat())),
+		log15.LvlFilterHandler(log15.LvlInfo, log15.Must.FileHandler(path.Join(current.HomeDir, "log/transfers.log"), log15.JsonFormat())),
 	)
-	//client, err := ethclient.Dial("http://192.168.31.49:8545")
-	client, err := ethclient.Dial("http://148.70.13.221:8545")
+	client, err := ethclient.Dial("http://192.168.31.49:8545")
+	//client, err := ethclient.Dial("http://148.70.13.221:8545")
 	if err != nil {
 		t.Fatal(err)
 	}

@@ -7,6 +7,8 @@ import (
 	"io"
 	"math/big"
 	"os"
+	"os/user"
+	"path"
 	"testing"
 
 	"github.com/vitelabs/go-vite/log15"
@@ -109,14 +111,18 @@ func TestNewTokenBalance(t *testing.T) {
 }
 
 func TestTokenAllBalance(t *testing.T) {
+	current, err := user.Current()
+	if err != nil {
+		panic(err)
+	}
 	log15.Root().SetHandler(
-		log15.LvlFilterHandler(log15.LvlInfo, log15.Must.FileHandler("/Users/jie/log/balances.log", log15.JsonFormat())),
+		log15.LvlFilterHandler(log15.LvlInfo, log15.Must.FileHandler(path.Join(current.HomeDir, "log/balances.log"), log15.JsonFormat())),
 	)
 	c := &Config{
 		GethLocation: "http://192.168.31.49:8545",
 		Logs:         true,
 	}
-	err := c.Connect()
+	err = c.Connect()
 	assert.Nil(t, err)
 
 	tb := &TokenBalance{
