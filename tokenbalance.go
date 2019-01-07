@@ -122,6 +122,54 @@ func (tb *TokenBalance) query() error {
 	return err
 }
 
+func (tb *TokenBalance) TokenCaller() error {
+	var err error
+
+	token, err := newTokenCaller(tb.Contract, Geth)
+	if err != nil {
+		log(fmt.Sprintf("Failed to instantiate a token contract: %v\n", err), false)
+		return err
+	}
+
+	block, err := Geth.BlockByNumber(tb.ctx, nil)
+	if err != nil {
+		log(fmt.Sprintf("Failed to get current block number: %v\n", err), false)
+	}
+	tb.Block = block.Number().Int64()
+
+	decimals, err := token.Decimals(nil)
+	if err != nil {
+		log(fmt.Sprintf("Failed to get decimals from contract: %v \n", tb.Contract.String()), false)
+		return err
+	}
+	tb.Decimals = decimals.Int64()
+
+	tb.ETH, err = Geth.BalanceAt(tb.ctx, tb.Wallet, nil)
+	if err != nil {
+		log(fmt.Sprintf("Failed to get ethereum balance from address: %v \n", tb.Wallet.String()), false)
+	}
+
+	tb.Balance, err = token.BalanceOf(nil, tb.Wallet)
+	if err != nil {
+		log(fmt.Sprintf("Failed to get balance from contract: %v %v\n", tb.Contract.String(), err), false)
+		tb.Balance = big.NewInt(0)
+	}
+
+	tb.Symbol, err = token.Symbol(nil)
+	if err != nil {
+		log(fmt.Sprintf("Failed to get symbol from contract: %v \n", tb.Contract.String()), false)
+		tb.Symbol = symbolFix(tb.Contract.String())
+	}
+
+	tb.Name, err = token.Name(nil)
+	if err != nil {
+		log(fmt.Sprintf("Failed to retrieve token name from contract: %v | %v\n", tb.Contract.String(), err), false)
+		tb.Name = "MISSING"
+	}
+
+	return err
+}
+
 func symbolFix(contract string) string {
 	switch common.HexToAddress(contract).String() {
 	case "0x86Fa049857E0209aa7D9e616F7eb3b3B78ECfdb0":

@@ -10,7 +10,10 @@ var example *TokenBalance
 func ExampleNew() {
 	token := "0xb64ef51c888972c908cfacf59b47c1afbc0ab8ac"
 	wallet := "0x9ea0c535b3eb166454c8ccbaba86850c8df3ee57"
-	example, _ = New(token, wallet)
+	example, err := New(token, wallet)
+	if err != nil {
+		panic(err)
+	}
 	fmt.Printf("This wallet has %v %v tokens", example.BalanceString(), example.Name)
 	// Output: This wallet has 7.282 StorjToken tokens
 }
